@@ -24,6 +24,7 @@ export class PlayingField {
     maxY: number = 0;
     coordinates: Array<Coordinate> = new Array<Coordinate>();
     usedIndexes: number[] = [];
+    language: string = "";
 
     removeUsedIndex(letterIndex: number) {
         var temp = [];
@@ -41,11 +42,6 @@ export class PlayingField {
     }
 
     setLetterIndex(x: number, y: number, letterIndex: number) {
-        if (x < this.minX) this.minX = x;
-        if (y < this.minY) this.minY = y;
-        if (x > this.maxX) this.maxX = x;
-        if (y > this.maxY) this.maxY = y;
-
         for (var i = 0; i < this.coordinates.length; i++) {
             if (this.coordinates[i].x == x && this.coordinates[i].y == y) {
                 this.removeUsedIndex(this.coordinates[i].letterIndex);
@@ -61,7 +57,6 @@ export class PlayingField {
         coord.letterIndex = letterIndex;
         this.coordinates.push(coord);
         this.usedIndexes.push(letterIndex);
-        console.log(this.coordinates);
     }
 
     getLetterIndex(x: number, y: number) {
@@ -77,11 +72,7 @@ export class PlayingField {
     getBrick(x: number, y: number): Brick {
         let brick = new Brick();
         if (this.usedIndexes.length == 0 && x == 0 && y == 0) {
-            this.minX = 0;
-            this.maxX = 0;
-            this.minY = 0;
-            this.maxY = 0;
-            this.coordinates = [];
+            //this.coordinates = [];
         }
 
         // If we don't have any values... then just say 0,0 is Possible!
@@ -124,6 +115,22 @@ export class PlayingField {
             retArr.push(y);
         }
         return retArr;
+    }
+
+    normalize() {
+        this.minX = 0;
+        this.maxX = 0;
+        this.minY = 0;
+        this.maxY = 0;
+        for (var i = 0; i < this.coordinates.length; i++) {
+            if (this.coordinates[i].letterIndex == -1)
+                continue;
+
+            if (this.coordinates[i].x < this.minX) this.minX = this.coordinates[i].x;
+            if (this.coordinates[i].x > this.maxX) this.maxX = this.coordinates[i].x;
+            if (this.coordinates[i].y < this.minY) this.minY = this.coordinates[i].y;
+            if (this.coordinates[i].y > this.maxY) this.maxY = this.coordinates[i].y;
+        }
     }
 
 }

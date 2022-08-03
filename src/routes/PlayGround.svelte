@@ -13,12 +13,11 @@
 			var url = $page.url.href + 'GetPlayground.json';
 			const f = await fetch(url, {
 				method: 'POST',
-				body: JSON.stringify({ language: language }),
+				body: JSON.stringify({ playingField: playingField, language: language }),
 				headers: {}
 			});
 
 			let r = await f.json();
-			console.log(r);
 			return r;
 		} catch (e) {
 			return 'fel';
@@ -34,12 +33,12 @@
 
 		if (lang == 'English US') {
 		}
-		console.log('GetGrid');
 
 		//var r = GetPlayground();
 		let playingFieldX = await Fetch(lang);
 
 		let playingField2 = new PlayingField();
+		playingField2.coordinates = playingFieldX.coordinates;
 		playingField2.givenLetters = playingFieldX.givenLetters;
 		playingField2.givenLetterIndexes = playingFieldX.givenLetterIndexes;
 		playingField2.minX = playingFieldX.minX;
@@ -47,11 +46,18 @@
 		playingField2.minY = playingFieldX.minY;
 		playingField2.maxY = playingFieldX.maxY;
 		playingField2.usedIndexes = playingFieldX.usedIndexes;
+		playingField2.language = playingFieldX.language;
+		playingField2.normalize();
 
 		playingField = playingField2;
 		columns = playingField.getXCoordArray();
 		rows = playingField.getYCoordArray();
 		errorMessage = '';
+	}
+
+	function submit() {
+		console.log('Submitting!');
+		GetGrid(playingField.language);
 	}
 
 	$: GetGrid(language);
@@ -89,10 +95,10 @@
 
 		playingField.setLetterIndex(x, y, selectedIndex);
 		selectedIndex = -1;
+		playingField.normalize();
 		playingField = playingField;
 		columns = playingField.getXCoordArray();
 		rows = playingField.getYCoordArray();
-		console.log(columns);
 	}
 
 	function setSelectedLetter(letterIndex: number) {
@@ -106,6 +112,7 @@
 <svelte:window on:keydown={handleKeydown} />
 
 {#if !errorMessage}
+	<h1>columns.length: {columns.length}, rows.length: {rows.length}</h1>
 	<!-- <input type="text" bind:value={grid.selectedLetters} /> -->
 	<table style="width:100%">
 		<tr>
@@ -165,7 +172,7 @@
 						</tr>
 					{/each}
 				</table>
-				<div style="width:300px;margin-top:40px;">
+				<div style="width:300px;margin-top:20px;">
 					{#each playingField.givenLetterIndexes as givenLetterIndex}
 						<div
 							style="cursor:pointer"
@@ -179,6 +186,9 @@
 							{playingField.givenLetters[givenLetterIndex]}
 						</div>
 					{/each}
+				</div>
+				<div style="width:300px;margin-top:20px;">
+					<button on:click={submit}>Submit</button>
 				</div>
 			</td>
 		</tr>
