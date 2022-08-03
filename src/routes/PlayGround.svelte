@@ -67,7 +67,7 @@
 			if (!language && localStorage) {
 				let l = localStorage.getItem('Language');
 				if (!l) {
-					language = 'English US';
+					language = 'Svenska';
 				} else {
 					language = l;
 				}
@@ -160,7 +160,7 @@
 					<br />
 					<select bind:value={language}>
 						<option value={'Svenska'}>Svenska</option>
-						<option value={'English US'}>English US</option>
+						<!-- <option value={'English US'}>English US</option> -->
 					</select>
 				</h1>
 				<div class:hidden={!showHelp}>
