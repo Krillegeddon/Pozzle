@@ -2,17 +2,21 @@ export class Coordinate {
     x: number = 0;
     y: number = 0;
     letterIndex: number = -1;
+    letter: string = "";
+    isFixed: boolean = false;
 }
 
 export enum BrickType {
     Blank,
     Possible,
-    Set
+    Set,
+    Fixed
 }
 
 export class Brick {
     brickType: BrickType = BrickType.Blank;
     letterIndex: number = -1;
+    letter: string = "";
 }
 
 export class PlayingField {
@@ -59,46 +63,13 @@ export class PlayingField {
         this.usedIndexes.push(letterIndex);
     }
 
-    getLetterIndex(x: number, y: number) {
+    getCoordinate(x: number, y: number): Coordinate {
         for (var i = 0; i < this.coordinates.length; i++) {
             if (this.coordinates[i].x == x && this.coordinates[i].y == y) {
-                return this.coordinates[i].letterIndex;
+                return this.coordinates[i];
             }
         }
-        return -1;
-    }
-
-
-    getBrick(x: number, y: number): Brick {
-        let brick = new Brick();
-        if (this.usedIndexes.length == 0 && x == 0 && y == 0) {
-            //this.coordinates = [];
-        }
-
-        // If we don't have any values... then just say 0,0 is Possible!
-        if (this.minX == 0 && this.maxX == 0 && this.minY == 0 && this.maxY == 0 &&
-            x == 0 && y == 0 && this.coordinates.length == 0) {
-            brick.brickType = BrickType.Possible;
-            return brick;
-        }
-
-        var letterIndex = this.getLetterIndex(x, y);
-        if (letterIndex >= 0) {
-            brick.brickType = BrickType.Set;
-            brick.letterIndex = letterIndex;
-            return brick;
-        }
-
-        // We haven't specified anything yet... check if we've got a letter N/W/S/E of us...
-        if (this.getLetterIndex(x - 1, y) >= 0 || this.getLetterIndex(x + 1, y) >= 0 ||
-            this.getLetterIndex(x, y - 1) >= 0 || this.getLetterIndex(x, y + 1) >= 0) {
-            brick.brickType = BrickType.Possible;
-            return brick;
-        }
-
-        // We do not have a value, and our neighbours haven't got a value - we are blank!
-        brick.brickType = BrickType.Blank;
-        return brick;
+        return null;
     }
 
     getXCoordArray(): Array<number> {
@@ -123,7 +94,9 @@ export class PlayingField {
         this.minY = 0;
         this.maxY = 0;
         for (var i = 0; i < this.coordinates.length; i++) {
-            if (this.coordinates[i].letterIndex == -1)
+            // If no letter specified in current round (letterIndex=>0) and not fixed since previous
+            // rounds - then continue.
+            if (this.coordinates[i].letterIndex == -1 && !this.coordinates[i].isFixed)
                 continue;
 
             if (this.coordinates[i].x < this.minX) this.minX = this.coordinates[i].x;

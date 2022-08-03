@@ -80,19 +80,40 @@
 	var rows = new Array<number>();
 
 	function isSet(x: number, y: number) {
-		var b = playingField.getBrick(x, y);
-		return b.brickType == BrickType.Set;
+		if (isFixed(x, y)) return false;
+		var coord = playingField.getCoordinate(x, y);
+		if (!coord) return false;
+		if (coord.isFixed || coord.letterIndex < 0) return false;
+		return true;
 	}
 	function isPossible(x: number, y: number) {
-		var b = playingField.getBrick(x, y);
-		return b.brickType == BrickType.Possible;
+		if (playingField.coordinates.length == 0 && x == 0 && y == 0) return true;
+
+		if (isSet(x, y)) return false;
+		if (isFixed(x, y)) return false;
+
+		// We haven't specified anything yet... check if we've got a letter N/W/S/E of us...
+		if (
+			playingField.getCoordinate(x - 1, y) ||
+			playingField.getCoordinate(x + 1, y) ||
+			playingField.getCoordinate(x, y - 1) ||
+			playingField.getCoordinate(x, y + 1)
+		) {
+			return true;
+		}
+
+		return false;
+	}
+	function isFixed(x: number, y: number) {
+		var coord = playingField.getCoordinate(x, y);
+		if (!coord) return false;
+		if (coord.isFixed || coord.letter) return true;
+		return false;
 	}
 	function handleKeydown(event: any) {}
 
 	function setLetterHere(x: number, y: number) {
-		let b = playingField.getBrick(x, y);
-		if (b.brickType == BrickType.Blank) return;
-
+		if (isFixed(x, y)) return;
 		playingField.setLetterIndex(x, y, selectedIndex);
 		selectedIndex = -1;
 		playingField.normalize();
@@ -112,7 +133,7 @@
 <svelte:window on:keydown={handleKeydown} />
 
 {#if !errorMessage}
-	<h1>columns.length: {columns.length}, rows.length: {rows.length}</h1>
+	<!-- <h1>columns.length: {columns.length}, rows.length: {rows.length}</h1> -->
 	<!-- <input type="text" bind:value={grid.selectedLetters} /> -->
 	<table style="width:100%">
 		<tr>
@@ -162,10 +183,14 @@
 								<td
 									class:letterbox={isPossible(column, row)}
 									class:letterbox-set={isSet(column, row)}
+									class:letterbox-fixed={isFixed(column, row)}
 									on:click={() => setLetterHere(column, row)}
 								>
 									{#if isSet(column, row)}
-										{playingField.givenLetters[playingField.getLetterIndex(column, row)]}
+										{playingField.givenLetters[playingField.getCoordinate(column, row).letterIndex]}
+									{/if}
+									{#if isFixed(column, row)}
+										{playingField.getCoordinate(column, row).letter}
 									{/if}
 								</td>
 							{/each}
@@ -221,6 +246,11 @@
 		border: 1px #555555 solid;
 		color: white;
 		background-color: green;
+		text-align: center;
+	}
+	.letterbox-fixed {
+		border: 1px #555555 solid;
+		color: white;
 		text-align: center;
 	}
 	.letterbox-selected {

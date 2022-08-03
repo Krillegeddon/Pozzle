@@ -10,8 +10,15 @@ export const POST: RequestHandler = async (event) => {
     let playingField2 = new PlayingField();
     if (req.playingField) {
         var playingFieldX = req.playingField;
-        console.log(playingFieldX.coordinates);
         playingField2.coordinates = playingFieldX.coordinates;
+        // All incoming coordinates are fixed:
+        for (let i = 0; i < playingField2.coordinates.length; i++) {
+            if (playingField2.coordinates[i].isFixed == false && playingField2.coordinates[i].letterIndex >= 0) {
+                playingField2.coordinates[i].isFixed = true;
+                playingField2.coordinates[i].letter = playingFieldX.givenLetters[playingField2.coordinates[i].letterIndex];
+                playingField2.coordinates[i].letterIndex = -1;
+            }
+        }
         playingField2.givenLetters = playingFieldX.givenLetters;
         playingField2.givenLetterIndexes = playingFieldX.givenLetterIndexes;
         playingField2.minX = playingFieldX.minX;
@@ -25,8 +32,6 @@ export const POST: RequestHandler = async (event) => {
     playingField2.givenLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
     playingField2.givenLetterIndexes = [0, 1, 2, 3, 4, 5, 6];
     playingField2.usedIndexes = [];
-    console.log("Coord to return");
-    console.log(playingField2.coordinates);
 
     return {
         status: 200,
