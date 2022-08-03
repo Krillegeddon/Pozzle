@@ -165,7 +165,16 @@
 				</h1>
 				<div class:hidden={!showHelp}>
 					{#if language == 'Svenska'}
-						TBD!<br />
+						För varje omgång får du X antal bokstäver.<br />
+						Markera en bokstav som du vill placera genom att trycka på den längst ner<br />
+						Markera sedan var du vill placera bokstaven<br />
+						För varje bokstav som placeras, så finns möjlighet att placera runtomkring denna bokstav.<br
+						/>
+						När du inte kommer på fler ord eller att tiden tar slut, skickas omgången in.<br />
+						Du matchas mot din motståndare. Den spelare som får flest poäng under omgången<br />
+						får behålla sina bokstäver på spelplanen (förloraren får alltså motståndarens ord)<br />
+						Vinnaren erhåller även 20 extrapoäng denna omgång.<br />
+						Spelet varar 5 omgångar. Den med mest poäng när spelet är slut är vinnaren!<br /><br />
 						Ha så skoj!<br />
 						<br />
 					{/if}
