@@ -2,7 +2,7 @@
 </script>
 
 <svelte:head>
-	<title>Crozzle</title>
+	<title>Pozzle</title>
 	<meta name="robots" content="noindex nofollow" />
 	<html lang="en" />
 </svelte:head>

@@ -23,6 +23,22 @@ export class PlayingField {
     maxX: number = 0;
     maxY: number = 0;
     coordinates: Array<Coordinate> = new Array<Coordinate>();
+    usedIndexes: number[] = [];
+
+    removeUsedIndex(letterIndex: number) {
+        var temp = [];
+        for (let i = 0; i < this.usedIndexes.length; i++) {
+            if (this.usedIndexes[i] != letterIndex) temp.push(this.usedIndexes[i]);
+        }
+        this.usedIndexes = temp;
+    }
+
+    isUsedLetter(letterIndex: number) {
+        for (let i = 0; i < this.usedIndexes.length; i++) {
+            if (this.usedIndexes[i] == letterIndex) return true;
+        }
+        return false;
+    }
 
     setLetterIndex(x: number, y: number, letterIndex: number) {
         if (x < this.minX) this.minX = x;
@@ -32,7 +48,10 @@ export class PlayingField {
 
         for (var i = 0; i < this.coordinates.length; i++) {
             if (this.coordinates[i].x == x && this.coordinates[i].y == y) {
+                this.removeUsedIndex(this.coordinates[i].letterIndex);
                 this.coordinates[i].letterIndex = letterIndex;
+                if (letterIndex >= 0)
+                    this.usedIndexes.push(letterIndex);
                 return;
             }
         }
@@ -41,6 +60,7 @@ export class PlayingField {
         coord.y = y;
         coord.letterIndex = letterIndex;
         this.coordinates.push(coord);
+        this.usedIndexes.push(letterIndex);
         console.log(this.coordinates);
     }
 
@@ -56,6 +76,13 @@ export class PlayingField {
 
     getBrick(x: number, y: number): Brick {
         let brick = new Brick();
+        if (this.usedIndexes.length == 0 && x == 0 && y == 0) {
+            this.minX = 0;
+            this.maxX = 0;
+            this.minY = 0;
+            this.maxY = 0;
+            this.coordinates = [];
+        }
 
         // If we don't have any values... then just say 0,0 is Possible!
         if (this.minX == 0 && this.maxX == 0 && this.minY == 0 && this.maxY == 0 &&

@@ -46,6 +46,7 @@
 		playingField2.maxX = playingFieldX.maxX;
 		playingField2.minY = playingFieldX.minY;
 		playingField2.maxY = playingFieldX.maxY;
+		playingField2.usedIndexes = playingFieldX.usedIndexes;
 
 		playingField = playingField2;
 		columns = playingField.getXCoordArray();
@@ -83,6 +84,9 @@
 	function handleKeydown(event: any) {}
 
 	function setLetterHere(x: number, y: number) {
+		let b = playingField.getBrick(x, y);
+		if (b.brickType == BrickType.Blank) return;
+
 		playingField.setLetterIndex(x, y, selectedIndex);
 		selectedIndex = -1;
 		playingField = playingField;
@@ -90,6 +94,12 @@
 		rows = playingField.getYCoordArray();
 		console.log(columns);
 	}
+
+	function setSelectedLetter(letterIndex: number) {
+		if (playingField.isUsedLetter(letterIndex)) return;
+		selectedIndex = letterIndex;
+	}
+
 	let selectedIndex: number = -1;
 </script>
 
@@ -159,9 +169,12 @@
 					{#each playingField.givenLetterIndexes as givenLetterIndex}
 						<div
 							style="cursor:pointer"
-							on:click={() => (selectedIndex = givenLetterIndex)}
+							on:click={() => setSelectedLetter(givenLetterIndex)}
 							class="letterbox-keyboard"
 							class:letterbox-selected={selectedIndex == givenLetterIndex}
+							class:letterbox-used={playingField.isUsedLetter(givenLetterIndex)}
+							class:letterbox-selectable={selectedIndex != givenLetterIndex &&
+								!playingField.isUsedLetter(givenLetterIndex)}
 						>
 							{playingField.givenLetters[givenLetterIndex]}
 						</div>
@@ -208,6 +221,16 @@
 		width: 20px;
 		text-align: center;
 	}
+	.letterbox-used {
+		border: 1px #555555 solid;
+		color: white;
+		height: 20px;
+		width: 20px;
+		text-align: center;
+	}
+	.letterbox-selectable {
+		background-color: green;
+	}
 	.letterbox-keyboard {
 		display: inline-block;
 		border: 1px #555555 solid;
@@ -216,15 +239,6 @@
 		text-align: center;
 		margin: 2px;
 		font-size: 30px;
-		color: white;
-	}
-	.letterbox-keyboard-perfect {
-		border: 1px #555555 solid;
-		background-color: lightgreen;
-	}
-	.letterbox-keyboard-error {
-		border: 1px #555555 solid;
-		background-color: red;
 		color: white;
 	}
 </style>
