@@ -1,3 +1,4 @@
+
 export class Coordinate {
     x: number = 0;
     y: number = 0;
@@ -17,6 +18,18 @@ export class Brick {
     brickType: BrickType = BrickType.Blank;
     letterIndex: number = -1;
     letter: string = "";
+}
+
+export enum WordStatus {
+    Pending,
+    Fail,
+    OK
+}
+
+export class WordToCheck {
+    word: string;
+    wordStatus: WordStatus;
+    points: number;
 }
 
 export class PlayingField {
@@ -104,6 +117,71 @@ export class PlayingField {
             if (this.coordinates[i].y < this.minY) this.minY = this.coordinates[i].y;
             if (this.coordinates[i].y > this.maxY) this.maxY = this.coordinates[i].y;
         }
+        this.getWordsForRound();
+    }
+
+    getLetter(x: number, y: number): string {
+        var coord = this.getCoordinate(x, y);
+        if (!coord) return "";
+        if (coord.isFixed) return coord.letter;
+        if (coord.letterIndex < 0) return "";
+        return this.givenLetters[coord.letterIndex];
+    }
+
+    getHorizontalWord(x: number, y: number): string {
+        let currX = x;
+        let retWord = "";
+        while (this.getLetter(currX, y) != "") {
+            currX--;
+        }
+        currX += 1;
+
+        while (this.getLetter(currX, y) != "") {
+            retWord += this.getLetter(currX, y);
+            currX++;
+        }
+        return retWord;
+    }
+
+    getVerticalWord(x: number, y: number): string {
+        let currY = y;
+        let retWord = "";
+        while (this.getLetter(x, currY) != "") {
+            currY--;
+        }
+        currY += 1;
+
+        while (this.getLetter(x, currY) != "") {
+            retWord += this.getLetter(x, currY);
+            currY++;
+        }
+        return retWord;
+    }
+
+
+
+    ifAlreadyAddedToWords(word: string, arr: Array<string>): boolean {
+        if (word.length == 1) return true;
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] == word) return true;
+        }
+        return false;
+    }
+
+    getWordsForRound() {
+        let retArr: Array<string> = new Array<string>();
+
+        for (var i = 0; i < this.coordinates.length; i++) {
+            if (this.coordinates[i].letterIndex < 0)
+                continue;
+            var horizontalWord = this.getHorizontalWord(this.coordinates[i].x, this.coordinates[i].y);
+            if (!this.ifAlreadyAddedToWords(horizontalWord, retArr))
+                retArr.push(horizontalWord);
+            var verticalWord = this.getVerticalWord(this.coordinates[i].x, this.coordinates[i].y);
+            if (!this.ifAlreadyAddedToWords(verticalWord, retArr))
+                retArr.push(verticalWord);
+        }
+        return retArr;
     }
 
 }

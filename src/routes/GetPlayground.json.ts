@@ -92,7 +92,6 @@ function SaveLang(inputFile: string, outputFile: string, className: string, igno
 
 
 
-    console.log(letterCounts);
     bb += "export let " + className + "_LetterCount = " + JSON.stringify(sortedLetterCount) + ";";
 
     fs.writeFileSync(outputFile, bb);
@@ -120,7 +119,6 @@ function getRandomString(letters: Array<LetterCount>): string {
 
 export const POST: RequestHandler = async (event) => {
     var req = await event.request.json();
-    console.log(req);
     // SaveLang("C:\\_Git\\Pozzle\\src\\lib\\se_utf8.txt", "C:\\_Git\\Pozzle\\src\\lib\\se.ts", "allWordsSE",
     //     ["-", "é", "è", "q", "w"]);
 
@@ -150,12 +148,8 @@ export const POST: RequestHandler = async (event) => {
     var randomString = getRandomString(allWordsSE_LetterCount);
     playingField2.givenLetters = [];
     playingField2.givenLetterIndexes = [];
-    console.log(randomString);
-    console.log("At 182: " + randomString.charAt(182));
-    console.log(randomString.length);
     for (let i = 0; i < 10; i++) {
         let index = Math.round(Math.random() * (randomString.length - 1));
-        console.log(index);
         playingField2.givenLetters.push(randomString.charAt(index).toUpperCase());
         playingField2.givenLetterIndexes.push(i);
     }

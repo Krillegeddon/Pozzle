@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BrickType, PlayingField } from '$lib/PlayGround';
+	import { BrickType, PlayingField, WordStatus, WordToCheck } from '$lib/PlayGround';
 	import { page } from '$app/stores';
 	import { browser, dev, prerendering } from '$app/env';
 	import { onMount } from 'svelte';
@@ -7,6 +7,39 @@
 	var showHelp = false;
 	var errorMessage = 'Loading2';
 	var language: string = '';
+	var checkedWords = new Array<WordToCheck>();
+
+	async function FetchCheckWord(lang: string, word: string) {
+		try {
+			var url = $page.url.href + 'CheckWord.json';
+			const f = await fetch(url, {
+				method: 'POST',
+				body: JSON.stringify({ word: word, language: lang }),
+				headers: {}
+			});
+
+			let r = await f.json();
+			for (var i = 0; i < checkedWords.length; i++) {
+				if (checkedWords[i].word == word) {
+					checkedWords[i].wordStatus = r.wordStatus;
+					checkedWords[i].points = r.points;
+				}
+			}
+			console.log('FetchCheckWord');
+			console.log(r);
+		} catch (e) {
+			console.log(e);
+		}
+	}
+
+	// async function getWordStatus(word: string): Promise<WordToCheck> {
+	// 	var pp = FetchCheckWord(language, word);
+	// 	console.log(pp);
+	// 	return pp;
+	// }
+
+	// function getWordStatus(word: string): WordToCheck {
+	// }
 
 	async function Fetch(lang: string): Promise<any> {
 		try {
@@ -52,6 +85,7 @@
 		playingField = playingField2;
 		columns = playingField.getXCoordArray();
 		rows = playingField.getYCoordArray();
+		checkedWords = [];
 		errorMessage = '';
 	}
 
@@ -112,6 +146,12 @@
 	}
 	function handleKeydown(event: any) {}
 
+	function isWordAdded(word: string): boolean {
+		for (var i = 0; i < checkedWords.length; i++) {
+			if (checkedWords[i].word == word) return true;
+		}
+		return false;
+	}
 	function setLetterHere(x: number, y: number) {
 		if (isFixed(x, y)) return;
 		playingField.setLetterIndex(x, y, selectedIndex);
@@ -120,6 +160,25 @@
 		playingField = playingField;
 		columns = playingField.getXCoordArray();
 		rows = playingField.getYCoordArray();
+		var words = playingField.getWordsForRound();
+		for (var i = 0; i < words.length; i++) {
+			if (isWordAdded(words[i])) continue;
+			var wc = new WordToCheck();
+			wc.word = words[i];
+			wc.points = 0;
+			wc.wordStatus = WordStatus.Pending;
+			checkedWords = [...checkedWords, wc];
+			FetchCheckWord(language, wc.word);
+		}
+	}
+
+	function checkStatusOnWord(cw: Array<WordToCheck>, word: string): WordToCheck {
+		for (var i = 0; i < cw.length; i++) {
+			if (cw[i].word == word) {
+				return cw[i];
+			}
+		}
+		return null;
 	}
 
 	function setSelectedLetter(letterIndex: number) {
@@ -224,6 +283,16 @@
 				<div style="width:300px;margin-top:20px;">
 					<button on:click={submit}>Submit</button>
 				</div>
+				<div style="width:300px;margin-top:20px;">
+					{#each playingField.getWordsForRound() as word}
+						<div
+							class:word-ok={checkStatusOnWord(checkedWords, word).wordStatus == WordStatus.OK}
+							class:word-fail={checkStatusOnWord(checkedWords, word).wordStatus == WordStatus.Fail}
+						>
+							{word}, {checkStatusOnWord(checkedWords, word).points}
+						</div>
+					{/each}
+				</div>
 			</td>
 		</tr>
 	</table>
@@ -244,6 +313,12 @@
 		color: white;
 		font-family: sans-serif;
 		background-color: #111111;
+	}
+	.word-ok {
+		color: green;
+	}
+	.word-fail {
+		color: red;
 	}
 	.letterbox {
 		border: 1px #555555 solid;
