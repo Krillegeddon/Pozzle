@@ -149,7 +149,7 @@ export const POST: RequestHandler = async (event) => {
     playingField2.givenLetters = [];
     playingField2.givenLetterIndexes = [];
     for (let i = 0; i < 10; i++) {
-        let index = Math.round(Math.random() * (randomString.length - 1));
+        let index = Math.floor(Math.random() * (randomString.length));
         playingField2.givenLetters.push(randomString.charAt(index).toUpperCase());
         playingField2.givenLetterIndexes.push(i);
     }

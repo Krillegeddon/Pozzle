@@ -3,6 +3,24 @@ import { allWordsSE, allWordsSE_LetterCount } from "$lib/se";
 import { allWordsEN_US } from "$lib/en_us";
 import type { RequestHandler } from "@sveltejs/kit";
 
+function getPointForLetter(letter: string, language: string) {
+    if (language == "Svenska") {
+        for (let i = 0; i < allWordsSE_LetterCount.length; i++) {
+            if (allWordsSE_LetterCount[i].letter == letter) {
+                return allWordsSE_LetterCount[i].point;
+            }
+        }
+    }
+
+}
+
+function countPoints(word: string, language: string) {
+    let point = 0;
+    for (let i = 0; i < word.length; i++) {
+        point += getPointForLetter(word.charAt(i), language);
+    }
+    return point;
+}
 
 
 export const POST: RequestHandler = async (event) => {
@@ -20,7 +38,7 @@ export const POST: RequestHandler = async (event) => {
         if (allWordsSE[i].toUpperCase() == word) {
             var ret = new WordToCheck();
             ret.word = req.word;
-            ret.points = 99;
+            ret.points = countPoints(ret.word, req.language);
             ret.wordStatus = WordStatus.OK;
             console.log("Okay");
 
